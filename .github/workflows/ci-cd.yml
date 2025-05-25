@@ -20,7 +20,7 @@ jobs:
       uses: aws-actions/configure-aws-credentials@v2
       with:
         aws-region: ${{ env.AWS_REGION }}
-        role-to-assume: arn:aws:iam::325583868777:role/SEU_ROLE_PARA_PIPELINE
+        role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
         role-session-name: github-actions
 
     - name: Obter URL do ECR

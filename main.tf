@@ -72,14 +72,14 @@ data "kubernetes_config_map" "aws_auth" {
 
 module "ecr" {
   source = "./modules/ecr"
-  name   = "getting-started"       # ou outro nome que preferir
+  name   = "dp017-container-regrstry"       # ou outro nome que preferir
   tags   = var.node_group_tags     # você já tem node_group_tags definidas
 }
 
 module "github_pipeline" {
   source     = "./modules/github_pipeline"
   name       = "github-actions-eks-pipeline-role"
-  repository = "SEU_ORG/getting-started-cicd"  # ajuste para seu repo
-  branch     = "main"
+  repository = "vnvz/eks-cicd-lab"  # ajuste para seu repo
+  branch     = "master"
   tags       = var.node_group_tags
 }
