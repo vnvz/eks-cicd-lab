@@ -38,12 +38,6 @@ resource "aws_iam_role_policy_attachment" "pipeline_eks" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
 }
 
-# Opcional: sts:GetCallerIdentity para update-kubeconfig
-resource "aws_iam_role_policy_attachment" "pipeline_sts" {
-  role       = aws_iam_role.github_pipeline.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonSTSReadOnlyAccess"
-}
-
 # Se quiser permitir describe-nodegroup, etc:
 resource "aws_iam_role_policy_attachment" "pipeline_eks_worker" {
   role       = aws_iam_role.github_pipeline.name

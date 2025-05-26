@@ -78,7 +78,7 @@ module "ecr" {
 
 module "github_pipeline" {
   source     = "./modules/github_pipeline"
-  name       = "github-actions-eks-pipeline-role"
+  name       = "gh-actions-dp017"
   repository = "vnvz/eks-cicd-lab"  # ajuste para seu repo
   branch     = "master"
   tags       = var.node_group_tags
