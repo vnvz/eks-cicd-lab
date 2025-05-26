@@ -3,7 +3,7 @@ locals {
     {
       app = var.app_name # Label principal para seleção
     },
-    var.labels # Mescla com quaisquer labels extras passadas
+    var.labels
   )
 }
 
@@ -18,12 +18,12 @@ resource "kubernetes_deployment" "app" {
     replicas = var.replicas
 
     selector {
-      match_labels = local.common_labels # Seleciona pods com estas labels
+      match_labels = local.common_labels
     }
 
     template {
       metadata {
-        labels = local.common_labels # Aplica labels aos pods
+        labels = local.common_labels
       }
 
       spec {
@@ -51,8 +51,8 @@ resource "kubernetes_service" "app" {
     selector = local.common_labels
 
     port {
-      port        = var.service_port     # Porta externa do serviço
-      target_port = var.container_port # Porta interna do container
+      port        = var.service_port
+      target_port = var.container_port
       protocol    = "TCP"
     }
 

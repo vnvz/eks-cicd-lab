@@ -1,7 +1,7 @@
 variable "cluster_name" {
   description = "Nome do cluster EKS para usar em tags/nomes (opcional)."
   type        = string
-  default     = null # Não obrigatório para a funcionalidade básica da role
+  default     = null
 }
 
 variable "tags" {

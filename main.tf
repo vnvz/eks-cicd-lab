@@ -42,7 +42,7 @@
   module "node_group_iam_role" {
     source = "./modules/iam_roles"
     tags = merge(
-      var.node_group_tags, # <--- Já passa as tags definidas na variável
+      var.node_group_tags,
       { Name = "eks-nodegroup-role-${var.existing_eks_cluster_name}" }
     )
     cluster_name = module.eks_cluster.cluster_name
@@ -88,7 +88,6 @@ resource "kubernetes_config_map_v1_data" "aws_auth_patch" {
       ]
     ))),
 
-    # Decodifica o mapRoles existente, adiciona o novo mapeamento para a role do pipeline, e codifica de volta
     "mapRoles" = yamlencode(distinct(concat(
       try(yamldecode(data.kubernetes_config_map.aws_auth.data["mapRoles"]), []),
       [
@@ -111,14 +110,14 @@ resource "kubernetes_config_map_v1_data" "aws_auth_patch" {
 
   module "ecr" {
     source = "./modules/ecr"
-    name   = "dp017-container-regrstry"       # ou outro nome que preferir
-    tags   = var.node_group_tags     # você já tem node_group_tags definidas
+    name   = "dp017-container-regrstry"
+    tags   = var.node_group_tags
   }
 
   module "github_pipeline" {
     source     = "./modules/github_pipeline"
     name       = "gh-actions-dp017"
-    repository = "vnvz/eks-cicd-lab"  # ajuste para seu repo
+    repository = "vnvz/eks-cicd-lab"
     branch     = "master"
     tags       = var.node_group_tags
   }

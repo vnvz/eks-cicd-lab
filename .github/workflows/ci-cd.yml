@@ -3,20 +3,20 @@ name: CI/CD para EKS
 on:
   push:
     branches: [ main ]
-  workflow_dispatch: # Mantenha se quiser acionamento manual
+  workflow_dispatch:
 
 env:
   AWS_REGION: eu-central-1
-  ECR_REPOSITORY: dp017-container-regrstry # Nome do seu ECR
-  EKS_CLUSTER_NAME: eksDeepDiveFrankfurt # Nome do seu cluster EKS
-  K8S_DEPLOYMENT_NAME: vvv-pcgbf-app # Ou getting-started-app, o nome do seu deployment K8s
-  K8S_CONTAINER_NAME: vvv-pcgbf-app # Ou getting-started-app, o nome do container no deployment
-  K8S_NAMESPACE: default # Namespace do seu deployment
+  ECR_REPOSITORY: dp017-container-regrstry
+  EKS_CLUSTER_NAME: eksDeepDiveFrankfurt
+  K8S_DEPLOYMENT_NAME: vvv-pcgbf-app
+  K8S_CONTAINER_NAME: vvv-pcgbf-app
+  K8S_NAMESPACE: default
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    permissions: # Adicione permissões para OIDC
+    permissions:
       id-token: write
       contents: read
 
@@ -42,13 +42,13 @@ jobs:
         echo "URI=$URI" >> $GITHUB_OUTPUT # Forma correta de setar output
 
     - name: Login to ECR
-      id: login-ecr # Adicione um id para referenciar depois se necessário
+      id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
 
     - name: Pull from Docker Hub, Tag & Push to ECR
       env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }} # Usa o output do login-ecr
-        IMAGE_NAME: vnvzz/getting-started # Imagem base do Docker Hub
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_NAME: vnvzz/getting-started
       run: |
         IMAGE_TAG_LATEST=latest
         IMAGE_TAG_COMMIT=${GITHUB_SHA::8}
@@ -58,14 +58,13 @@ jobs:
         docker tag $IMAGE_NAME:$IMAGE_TAG_LATEST \
           $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG_COMMIT
         docker tag $IMAGE_NAME:$IMAGE_TAG_LATEST \
-          $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG_LATEST # Opcional: também taguear como latest no ECR
+          $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG_LATEST
 
         docker push $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG_COMMIT
-        docker push $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG_LATEST # Opcional
+        docker push $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG_LATEST
 
         echo "ECR_IMAGE_URI_COMMIT=$ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG_COMMIT" >> $GITHUB_ENV
-        echo "IMAGE_TAG_TO_DEPLOY=$IMAGE_TAG_COMMIT" >> $GITHUB_ENV # Variável para o passo de deploy
-
+        echo "IMAGE_TAG_TO_DEPLOY=$IMAGE_TAG_COMMIT" >> $GITHUB_ENV
     - name: Configure kubectl para o EKS
       run: |
         aws eks update-kubeconfig \
@@ -77,4 +76,4 @@ jobs:
         kubectl set image deployment/${{ env.K8S_DEPLOYMENT_NAME }} \
           ${{ env.K8S_CONTAINER_NAME }}=${{ env.ECR_IMAGE_URI_COMMIT }} \
           --namespace ${{ env.K8S_NAMESPACE }}
-        kubectl rollout status deployment/${{ env.K8S_DEPLOYMENT_NAME }} --namespace ${{ env.K8S_NAMESPACE }} --timeout=2m
+        kubectl rollout status deployment/${{ env.K8S_DEPLOYMENT_NAME }} --namespace ${{ env.K8S_NAMESPACE }} --timeout=5m
